@@ -10,7 +10,7 @@
 """
 
 from flask import Blueprint, after_this_request, current_app, jsonify, \
-    redirect, request
+    redirect, request, Response
 from flask_login import current_user
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
@@ -71,9 +71,11 @@ def _ctx(endpoint):
     return _security._run_ctx_processor(endpoint)
 
 
-@anonymous_user_required
 def login():
     """View function for login view"""
+
+    if current_user.is_authenticated:
+        logout_user()
 
     form_class = _security.login_form
 
@@ -102,6 +104,10 @@ def logout():
 
     if current_user.is_authenticated:
         logout_user()
+
+    # No body is required - so if a POST and json - return OK
+    if request.method == 'POST' and request.is_json:
+        return Response(status=200)
 
     return redirect(get_post_logout_redirect())
 
