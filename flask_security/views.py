@@ -15,19 +15,11 @@ from flask_login import current_user
 from werkzeug.datastructures import MultiDict
 from werkzeug.local import LocalProxy
 
-<<<<<<< HEAD
 from .changeable import change_user_password
 from .confirmable import confirm_email_token_status, confirm_user, \
     send_confirmation_instructions
-from .decorators import anonymous_user_required, login_required
-from .passwordless import login_token_status, send_login_instructions
-=======
-from .confirmable import send_confirmation_instructions, \
-    confirm_user, confirm_email_token_status
 from .decorators import anonymous_user_required, auth_required
-from .passwordless import send_login_instructions, \
-    login_token_status
->>>>>>> views: allow token authentication for change_password
+from .passwordless import login_token_status, send_login_instructions
 from .recoverable import reset_password_token_status, \
     send_reset_password_instructions, update_password
 from .registerable import register_user
@@ -404,7 +396,9 @@ def create_blueprint(state, import_name):
                    subdomain=state.subdomain,
                    template_folder='templates')
 
-    bp.route(state.logout_url, endpoint='logout')(logout)
+    bp.route(state.logout_url,
+             methods=['GET', 'POST'],
+             endpoint='logout')(logout)
 
     if state.passwordless:
         bp.route(state.login_url,
